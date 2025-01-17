@@ -166,6 +166,16 @@ function GameEngine:FillArc(left, top, right, bottom, startDegree, angle) end
 ---@return integer # The combined RGB value.
 function GameEngine:MakeRGB(r, g, b) end
 
+
+
+---Combines left, top, right and bottom values into a single RECT.
+---@param left integer # The X-coordinate of the rectangle's top-left corner.
+---@param top integer # The Y-coordinate of the rectangle's top-left corner.
+---@param right integer # The X-coordinate of the rectangle's bottom-right corner.
+---@param bottom integer  # The Y-coordinate of the rectangle's bottom-right corner.
+---@return integer # The combined RECT value.
+function GameEngine:MakeRect(left, top,  right, bottom) end
+
 ---Draws a bitmap at the specified position.
 ---@overload fun(bitmap: Bitmap, x: integer, y: integer): boolean
 ---@param bitmap Bitmap # The bitmap to draw.
@@ -174,6 +184,9 @@ function GameEngine:MakeRGB(r, g, b) end
 ---@param rect? RECT # (Optional) The source rectangle to draw from the bitmap.
 ---@return boolean # True if the bitmap was drawn successfully, otherwise false.
 function GameEngine:DrawBitmap(bitmap, x, y, rect) end
+
+---@param color integer
+function GameEngine:FillWindowRect(color) end
 
 --- Class representing a bitmap image
 ---@class Bitmap

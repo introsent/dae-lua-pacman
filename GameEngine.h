@@ -138,6 +138,11 @@ public:
 		return RGB(r, g, b);
 	}
 
+	RECT MakeRect(int left, int top, int right, int bottom)
+	{
+		return { left, top, right, bottom };
+	}
+
 	COLORREF	GetDrawColor		()						const;
 	bool		Repaint				()						const;
 

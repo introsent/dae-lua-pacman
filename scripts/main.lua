@@ -13,20 +13,22 @@ function Initialize()
 end
 
 function Paint()
+    GameEngine:FillWindowRect(GameEngine:MakeRGB(0,0,0))
     if map then
         map:Paint()
     end
-    --if pacman then
-        -- pacman:Paint()
-    --end
+    if pacman then
+        pacman:Paint()
+    end
 end
 
 
 function Tick(elapsedSec)
     
+    pacman:Tick(elapsedSec)
 end
 
-function CheckKeyboard()
-
+function KeyPressed(char)
+    pacman:KeyPressed(char)
 end
 

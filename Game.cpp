@@ -46,11 +46,14 @@ void Game::Initialize()
 
 	lua["Initialize"]();
 	// Set the keys that the game needs to listen to
-	//tstringstream buffer;
-	//buffer << _T("KLMO");
-	//buffer << (char) VK_LEFT;
-	//buffer << (char) VK_RIGHT;
-	//GAME_ENGINE->SetKeyList(buffer.str());
+	tstringstream buffer;
+	buffer << _T("WASD");
+	buffer << (char) VK_LEFT;
+	buffer << (char) VK_RIGHT;
+	buffer << (char) VK_UP;
+	buffer << (char) VK_DOWN;
+
+	GAME_ENGINE->SetKeyList(buffer.str());
 }
 
 void Game::Start()
@@ -74,7 +77,7 @@ void Game::Paint(RECT rect) const
 
 void Game::Tick()
 {
-	lua["Tick"]();
+	lua["Tick"](1.f / GAME_ENGINE->GetFrameRate());
 	// Insert non-paint code that needs to execute each tick 
 }
 
@@ -137,25 +140,23 @@ void Game::KeyPressed(TCHAR key)
 	// The function is executed when the key is *released*
 	// You need to specify the list of keys with the SetKeyList() function
 
-	/* Example:
+	// Example:
 	switch (key)
 	{
-	case _T('K'): case VK_LEFT:
-		GAME_ENGINE->MessageBox("Moving left.");
+	case _T('W'): case VK_LEFT:
+		lua["KeyPressed"]("W");
 		break;
-	case _T('L'): case VK_DOWN:
-		GAME_ENGINE->MessageBox("Moving down.");
+	case _T('A'): case VK_DOWN:
+		lua["KeyPressed"]("A");
 		break;
-	case _T('M'): case VK_RIGHT:
-		GAME_ENGINE->MessageBox("Moving right.");
+	case _T('S'): case VK_RIGHT:
+		lua["KeyPressed"]("S");
 		break;
-	case _T('O'): case VK_UP:
-		GAME_ENGINE->MessageBox("Moving up.");
+	case _T('D'): case VK_UP:
+		lua["KeyPressed"]("D");
 		break;
-	case VK_ESCAPE:
-		GAME_ENGINE->MessageBox("Escape menu.");
 	}
-	*/
+	
 }
 
 void Game::CallAction(Caller* callerPtr)
@@ -209,6 +210,7 @@ void Game::BindGame()
             sol::resolve<void(int, int, int)>(&GameEngine::SetColor),
             sol::resolve<void(COLORREF)>(&GameEngine::SetColor)
         ),
+		"FillWindowRect", &GameEngine::FillWindowRect,
         "SetFont", &GameEngine::SetFont,
         //"DrawString", &GameEngine::DrawString,
         "GetTitle", &GameEngine::GetTitle,
@@ -227,6 +229,7 @@ void Game::BindGame()
         "DrawArc", &GameEngine::DrawArc,
         "FillArc", &GameEngine::FillArc,
         "MakeRGB", &GameEngine::MakeRGB,
+		"MakeRect", &GameEngine::MakeRect,
         "DrawBitmap", sol::overload(
             sol::resolve<bool(const Bitmap*, int, int) const>(&GameEngine::DrawBitmap),
             sol::resolve<bool(const Bitmap*, int, int, RECT) const>(&GameEngine::DrawBitmap)
