@@ -29,10 +29,22 @@ void Game::Initialize()
 	AbstractGame::Initialize();
 	GAME_ENGINE->SetTitle(_T("SE_Exam_Ivans_Minajevs_PACMAN"));	
 	
-	GAME_ENGINE->SetWidth(650);
-	GAME_ENGINE->SetHeight(400);
+	GAME_ENGINE->SetWidth(448);
+	GAME_ENGINE->SetHeight(576);
     GAME_ENGINE->SetFrameRate(50);
 
+
+	lua.open_libraries(sol::lib::base);
+	lua.open_libraries(sol::lib::package);
+	lua.open_libraries(sol::lib::math);
+	lua.open_libraries(sol::lib::table);
+	lua.open_libraries(sol::lib::io);
+
+	lua.safe_script_file("scripts/main.lua");
+
+	BindGame();
+
+	lua["Initialize"]();
 	// Set the keys that the game needs to listen to
 	//tstringstream buffer;
 	//buffer << _T("KLMO");
@@ -53,11 +65,16 @@ void Game::End()
 
 void Game::Paint(RECT rect) const
 {
+	lua["Paint"]();
+	//auto funcRect = lua["PaintRect"];
+	//funcRect();
+
 	// Insert paint code 
 }
 
 void Game::Tick()
 {
+	lua["Tick"]();
 	// Insert non-paint code that needs to execute each tick 
 }
 
@@ -144,6 +161,106 @@ void Game::KeyPressed(TCHAR key)
 void Game::CallAction(Caller* callerPtr)
 {
 	// Insert the code that needs to execute when a Caller (= Button, TextBox, Timer, Audio) executes an action
+}
+
+void Game::BindGame()
+{
+
+
+	lua.new_usertype<Game>("Game",
+		sol::constructors<Game()>(),  // Constructor for Game
+		"Initialize", &Game::Initialize,
+		"Start", &Game::Start,
+		"End", &Game::End,
+		"Paint", &Game::Paint,
+		"Tick", &Game::Tick,
+		"MouseButtonAction", &Game::MouseButtonAction,
+		"MouseWheelAction", &Game::MouseWheelAction,
+		"MouseMove", &Game::MouseMove,
+		"CheckKeyboard", &Game::CheckKeyboard,
+		"KeyPressed", &Game::KeyPressed,
+		"CallAction", &Game::CallAction
+	);
+
+    lua.new_usertype<Bitmap>("Bitmap",
+        sol::constructors<Bitmap(const tstring&, bool)>(),
+        "SetTransparencyColor", &Bitmap::SetTransparencyColor,
+        "SetOpacity", &Bitmap::SetOpacity,
+        "Exists", &Bitmap::Exists,
+        "GetWidth", &Bitmap::GetWidth,
+        "GetHeight", &Bitmap::GetHeight,
+        "GetTransparencyColor", &Bitmap::GetTransparencyColor,
+        "GetOpacity", &Bitmap::GetOpacity,
+        "HasAlphaChannel", &Bitmap::HasAlphaChannel,
+        "SaveToFile", &Bitmap::SaveToFile,
+        "GetHandle", &Bitmap::GetHandle
+    );
+
+    lua.new_usertype<GameEngine>("GameEngine",
+        sol::constructors<GameEngine()>(),
+        "SetWindowPosition", &GameEngine::SetWindowPosition,
+        "SetWidth", &GameEngine::SetWidth,
+        "SetHeight", &GameEngine::SetHeight,
+        "SetFrameRate", &GameEngine::SetFrameRate,
+        "Run", &GameEngine::Run,
+        "Quit", &GameEngine::Quit,
+        "IsKeyDown", &GameEngine::IsKeyDown,
+        "SetColor", sol::overload(
+            sol::resolve<void(int, int, int)>(&GameEngine::SetColor),
+            sol::resolve<void(COLORREF)>(&GameEngine::SetColor)
+        ),
+        "SetFont", &GameEngine::SetFont,
+        //"DrawString", &GameEngine::DrawString,
+        "GetTitle", &GameEngine::GetTitle,
+        "GetWidth", &GameEngine::GetWidth,
+        "GetHeihgt", &GameEngine::GetHeight,
+        "GetFrameRate", &GameEngine::GetFrameRate,
+        "DrawLine", &GameEngine::DrawLine,
+        "DrawRect", &GameEngine::DrawRect,
+        "FillRect", sol::overload(
+            sol::resolve<bool(int, int, int, int) const>(&GameEngine::FillRect),
+            sol::resolve<bool(int, int, int, int, int) const>(&GameEngine::FillRect)
+        ),
+        "DrawRoundRect", &GameEngine::DrawRoundRect,
+        "FillRoundRect", &GameEngine::FillRoundRect,
+        "DrawOval", &GameEngine::DrawOval,
+        "DrawArc", &GameEngine::DrawArc,
+        "FillArc", &GameEngine::FillArc,
+        "MakeRGB", &GameEngine::MakeRGB,
+        "DrawBitmap", sol::overload(
+            sol::resolve<bool(const Bitmap*, int, int) const>(&GameEngine::DrawBitmap),
+            sol::resolve<bool(const Bitmap*, int, int, RECT) const>(&GameEngine::DrawBitmap)
+        )
+
+    );
+
+    //lua["Shape"] = lua.create_table_with(
+    //    "Ellipse", HitRegion::Shape::Ellipse,
+    //    "Rectangle", HitRegion::Shape::Rectangle
+    //);
+    //lua.new_enum<HitRegion::Shape>("Shape",
+    //    { {"Ellipse", HitRegion::Shape::Ellipse},
+    //      {"Rectangle", HitRegion::Shape::Rectangle}
+    //    });
+
+    //lua.new_usertype<HitRegion>("HitRegion",
+    //    sol::constructors<HitRegion(HitRegion::Shape, int, int, int, int)>(),
+    //    sol::constructors<HitRegion(const POINT*, int)>(),
+    //    sol::constructors<HitRegion(const Bitmap*, COLORREF, COLORREF)>(),
+    //    "Move", &HitRegion::Move,
+    //    "HitTest", sol::overload(
+    //        sol::resolve<bool(int, int) const>(&HitRegion::HitTest),
+    //        sol::resolve<bool(const HitRegion*) const>(&HitRegion::HitTest)
+    //    ),
+    //    "CollisionTest", &HitRegion::CollisionTest,
+    //    "GetBounds", &HitRegion::GetBounds,
+    //    "Exists", &HitRegion::Exists,
+    //    "GetHandle", &HitRegion::GetHandle
+    //);
+
+    lua.set("GameEngine", GAME_ENGINE);
+
+	lua.set("Game", this);
 }
 
 

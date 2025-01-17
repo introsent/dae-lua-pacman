@@ -4,41 +4,15 @@
 #include <sol/sol.hpp>
 #include "GameEngine.h" // Include the file where your classes are defined
 
+
 class LuaBinder {
+
 public:
-
     // Static function to bind all classes to the Lua state
-    static void Bind(sol::state& lua) {
-
-        lua.new_usertype<GameEngine>("GameEngine",
-            sol::constructors<GameEngine()>(),
-            "SetWindowPosition", &GameEngine::SetWindowPosition,
-            "SetWidth", &GameEngine::SetWidth,
-            "SetHeight", &GameEngine::SetHeight,
-            "SetFrameRate", &GameEngine::SetFrameRate,
-            "Run", &GameEngine::Run,
-            "Quit", &GameEngine::Quit,
-            "IsKeyDown", &GameEngine::IsKeyDown,
-            "SetColor", &GameEngine::SetColor,
-            "SetFont", &GameEngine::SetFont,
-            "DrawString", &GameEngine::DrawString,
-            "GetTitle", &GameEngine::GetTitle,
-            "GetWidth", &GameEngine::GetWidth,
-            "GetHeihgt", &GameEngine::GetHeight,
-            "GetFrameRate", &GameEngine::GetFrameRate,
-            "DrawLine", &GameEngine::DrawLine,
-            "DrawRect", &GameEngine::DrawRect,
-            "FillRect", &GameEngine::FillRect,
-            "DrawRoundRect", &GameEngine::DrawRoundRect,
-            "FillRoundRect", &GameEngine::FillRoundRect,
-            "DrawOval", &GameEngine::DrawOval,
-            "FillOval", &GameEngine::FillOval,
-            "DrawArc", &GameEngine::DrawArc,
-            "FillArc", &GameEngine::FillArc
-            );
+    static void BindEngine(sol::state& lua) {
 
         lua.new_usertype<Bitmap>("Bitmap",
-            "new", sol::constructors<Bitmap(const tstring& filename, bool createAlphaChannel)>(),
+            sol::constructors<Bitmap(const tstring&, bool)>(),
             "SetTransparencyColor" , &Bitmap::SetTransparencyColor,
             "SetOpacity", &Bitmap::SetOpacity,
             "Exists", &Bitmap::Exists,
@@ -51,17 +25,74 @@ public:
             "GetHandle", &Bitmap::GetHandle
         );
 
-        lua["Shape"] = lua.create_table_with(
-            "Ellipse", HitRegion::Shape::Ellipse,
-            "Rectangle", HitRegion::Shape::Rectangle
+        lua.new_usertype<GameEngine>("GameEngine",
+            sol::constructors<GameEngine()>(),
+            "SetWindowPosition", &GameEngine::SetWindowPosition,
+            "SetWidth", &GameEngine::SetWidth,
+            "SetHeight", &GameEngine::SetHeight,
+            "SetFrameRate", &GameEngine::SetFrameRate,
+            "Run", &GameEngine::Run,
+            "Quit", &GameEngine::Quit,
+            "IsKeyDown", &GameEngine::IsKeyDown,
+            "SetColor", sol::overload(
+                sol::resolve<void(int, int ,int)>(&GameEngine::SetColor),
+                sol::resolve<void(COLORREF)>(&GameEngine::SetColor)
+              ),
+            "SetFont", &GameEngine::SetFont,
+            //"DrawString", &GameEngine::DrawString,
+            "GetTitle", &GameEngine::GetTitle,
+            "GetWidth", &GameEngine::GetWidth,
+            "GetHeihgt", &GameEngine::GetHeight,
+            "GetFrameRate", &GameEngine::GetFrameRate,
+            "DrawLine", &GameEngine::DrawLine,
+            "DrawRect", &GameEngine::DrawRect,
+            "FillRect", sol::overload(
+                sol::resolve<bool(int, int, int, int) const>(&GameEngine::FillRect),
+                sol::resolve<bool(int, int, int, int, int) const>(&GameEngine::FillRect)
+            ),
+            "DrawRoundRect", &GameEngine::DrawRoundRect,
+            "FillRoundRect", &GameEngine::FillRoundRect,
+            "DrawOval", &GameEngine::DrawOval,
+            //"FillOval", sol::overload(
+            //    sol::resolve<bool(int, int, int, int)>(&GameEngine::FillOval,
+            //    sol::resolve<bool(int, int, int, int, int)>(&GameEngine::FillOval)
+            //),
+            "DrawArc", &GameEngine::DrawArc,
+            "FillArc", &GameEngine::FillArc,
+            "MakeRGB", &GameEngine::MakeRGB,
+
+            "DrawBitmap", sol::overload(
+                sol::resolve<bool(const Bitmap*, int, int) const>(&GameEngine::DrawBitmap),
+                sol::resolve<bool(const Bitmap*, int, int, RECT) const>(&GameEngine::DrawBitmap)        
+            )
+
         );
+
+       
+
+        //lua["Shape"] = lua.create_table_with(
+        //    "Ellipse", HitRegion::Shape::Ellipse,
+        //    "Rectangle", HitRegion::Shape::Rectangle
+        //);
+        lua.new_enum<HitRegion::Shape>("Shape",
+            { {"Ellipse", HitRegion::Shape::Ellipse},
+              {"Rectangle", HitRegion::Shape::Rectangle}
+            });
+
         lua.new_usertype<HitRegion>("HitRegion",
-            "new", sol::constructors<HitRegion(Shape, int, int, int, int)>(),
-            "newWithPoints", sol::constructors<HitRegion(const POINT* pointsArr, int numberOfPoints)>(),
-            "newFromBitmap", sol::constructors<HitRegion(const Bitmap* bmpPtr, COLORREF cTransparent = RGB(255, 0, 255), COLORREF cTolerance = 0)>(),
+            sol::constructors<HitRegion(HitRegion::Shape, int, int, int, int)>(),
+            sol::constructors<HitRegion(const POINT*, int)>(),
+            sol::constructors<HitRegion(const Bitmap*, COLORREF, COLORREF)>(),
             "Move", &HitRegion::Move,
-        
-        )
+            "HitTest", sol::overload(
+                sol::resolve<bool(int, int) const>(&HitRegion::HitTest),
+                sol::resolve<bool(const HitRegion*) const>(&HitRegion::HitTest) 
+            ),
+            "CollisionTest", &HitRegion::CollisionTest,
+            "GetBounds", &HitRegion::GetBounds,
+            "Exists", &HitRegion::Exists,
+            "GetHandle", &HitRegion::GetHandle
+        );
 
 
         // Caller bindings
@@ -95,6 +126,9 @@ public:
             "GetName", &Audio::GetName,
             "GetDuration", &Audio::GetDuration
         );
+
+        lua.set("GameEngine", GAME_ENGINE);
+        //lua.set("Bitmap", Bitmap);
     }
 };
 

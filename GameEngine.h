@@ -102,6 +102,7 @@ public:
 
 	// Draw Functions
 	void		SetColor			(COLORREF color);
+	void		SetColor			(int r, int g, int b);
 	void		SetFont				(Font* fontPtr);
 
 	bool		FillWindowRect		(COLORREF color)														const;
@@ -129,6 +130,13 @@ public:
 	bool		DrawPolygon			(const POINT ptsArr[], int count, bool close)							const;
 	bool		FillPolygon			(const POINT ptsArr[], int count)										const;
 	bool		FillPolygon			(const POINT ptsArr[], int count, bool close)							const;
+
+
+
+	COLORREF MakeRGB(int r, int g, int b) const
+	{
+		return RGB(r, g, b);
+	}
 
 	COLORREF	GetDrawColor		()						const;
 	bool		Repaint				()						const;
@@ -189,6 +197,8 @@ private:
 
 	// Window Region assistance variable
 	HitRegion*			m_WindowRegionPtr	{};
+
+
 };
 
 //------------------------------------------------------------------------------------------------

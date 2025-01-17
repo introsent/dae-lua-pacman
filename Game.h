@@ -12,7 +12,8 @@
 #include "Resource.h"	
 #include "GameEngine.h"
 #include "AbstractGame.h"
-
+#include <sol/sol.hpp>
+#include "LuaBinder.h"
 //-----------------------------------------------------------------
 // Game Class																
 //-----------------------------------------------------------------
@@ -50,11 +51,11 @@ public:
 	
 	void CallAction			(Caller* callerPtr)											override;
 
+	void BindGame();
+
 private:
 	// -------------------------
 	// Datamembers
 	// -------------------------
-
-
-
+	sol::state lua;
 };

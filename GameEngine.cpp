@@ -1082,6 +1082,11 @@ void GameEngine::SetColor(COLORREF color)
 	m_ColDraw = color; 
 }
 
+void GameEngine::SetColor(int r, int g, int b)
+{
+	SetColor(RGB(r, g, b)) ;
+}
+
 void GameEngine::SetFont(Font* fontPtr)
 {
 	m_FontDraw = fontPtr->GetHandle();

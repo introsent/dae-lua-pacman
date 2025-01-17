@@ -158,6 +158,23 @@ function GameEngine:DrawArc(left, top, right, bottom, startDegree, angle) end
 ---@return boolean # True if the arc was filled successfully.
 function GameEngine:FillArc(left, top, right, bottom, startDegree, angle) end
 
+
+---Combines red, green, and blue values into a single RGB COLORREF.
+---@param r integer # Red component (0-255).
+---@param g integer # Green component (0-255).
+---@param b integer # Blue component (0-255).
+---@return integer # The combined RGB value.
+function GameEngine:MakeRGB(r, g, b) end
+
+---Draws a bitmap at the specified position.
+---@overload fun(bitmap: Bitmap, x: integer, y: integer): boolean
+---@param bitmap Bitmap # The bitmap to draw.
+---@param x integer # The x-coordinate of the position to draw the bitmap.
+---@param y integer # The y-coordinate of the position to draw the bitmap.
+---@param rect? RECT # (Optional) The source rectangle to draw from the bitmap.
+---@return boolean # True if the bitmap was drawn successfully, otherwise false.
+function GameEngine:DrawBitmap(bitmap, x, y, rect) end
+
 --- Class representing a bitmap image
 ---@class Bitmap
 ---@field public filename string
@@ -230,7 +247,7 @@ HitRegion = {}
 ---@param right number # Right position
 ---@param bottom number # Bottom position
 ---@return HitRegion
-function HitRegion:new(shape, left, top, right, bottom) end
+function HitRegion.new(shape, left, top, right, bottom) end
 
 --- Creates a new HitRegion object with points
 ---@param pointsArr table # Array of points
