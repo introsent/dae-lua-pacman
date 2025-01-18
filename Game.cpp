@@ -226,6 +226,10 @@ void Game::BindGame()
         "DrawRoundRect", &GameEngine::DrawRoundRect,
         "FillRoundRect", &GameEngine::FillRoundRect,
         "DrawOval", &GameEngine::DrawOval,
+		"FillOval", sol::overload(
+			sol::resolve<bool(int, int, int, int) const>(&GameEngine::FillOval),
+			sol::resolve<bool(int, int, int, int, int) const>(&GameEngine::FillOval)
+		),
         "DrawArc", &GameEngine::DrawArc,
         "FillArc", &GameEngine::FillArc,
         "MakeRGB", &GameEngine::MakeRGB,

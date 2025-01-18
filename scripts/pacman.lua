@@ -100,6 +100,10 @@ function Pacman:GetTextureRect()
     return {x = x, y = y, width = TILE_SIZE, height = TILE_SIZE}
 end
 
+function Pacman:CheckCollision()
+    
+end
+
 -- Return the Pacman class for require
 return Pacman
 
