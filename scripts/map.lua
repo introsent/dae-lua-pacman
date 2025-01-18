@@ -95,16 +95,39 @@ function Map:InstatiatePellets()
     return pellets
 end
 
--- Paint Pacman
+function Map:GetMapTilesSet()
+    return MAP_TILE_SET
+end
+
+-- Paint Map
 function Map:Paint()
     GameEngine:DrawBitmap(self.texture, self.posX, self.posY)
 
-    --print("Painting....")
-    --print("Number of pellets: " .. #self.pellets)
     for _, pellet in ipairs(self.pellets) do
         print("Paint pellet")
         pellet:Paint()  -- Call the pellet function on each Pellet instance
     end
+end
+
+function Map:CheckCollision(x, y)
+    -- Convert Pac-Man's world position to map grid position
+    local tileX = math.floor((x - OFFSET_X) / TILE_SIZE) + 1
+    local tileY = math.floor((y - OFFSET_Y) / TILE_SIZE) + 1
+
+    -- Check if the tiles are within bounds
+    if tileX < 1 or tileY < 1 or tileX + 1 > #MAP_TILE_SET[1] or tileY + 1 > #MAP_TILE_SET then
+        return false  -- Out of bounds, no collision
+    end
+
+    -- Check if any of the 4 tiles in the 2x2 space are walls
+    if MAP_TILE_SET[tileY][tileX] == 1 or 
+       MAP_TILE_SET[tileY][tileX + 1] == 1 or 
+       MAP_TILE_SET[tileY + 1][tileX] == 1 or 
+       MAP_TILE_SET[tileY + 1][tileX + 1] == 1 then
+        return true  -- Collision with a wall
+    end
+
+    return false  -- No collision
 end
 
 -- Return the Map class for require

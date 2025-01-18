@@ -2,13 +2,10 @@ Pellet = {}
 Pellet.__index = Pellet
 
 function Pellet:new(posX, posY)
-    print("Initializing Dot... begin")
     local obj = setmetatable({}, self)
 
     --General
-    print("Making color... begin")
-    obj.color = GameEngine:MakeRGB(255, 255, 100)
-    print("Making color... done")
+    obj.color = GameEngine:MakeRGB(255, 200, 200)
     obj.x = posX or 0
     obj.y = posY or 0
 

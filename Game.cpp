@@ -77,7 +77,7 @@ void Game::Paint(RECT rect) const
 
 void Game::Tick()
 {
-	lua["Tick"](1.f / GAME_ENGINE->GetFrameRate());
+	lua["Tick"](1.0 / GAME_ENGINE->GetFrameRate());
 	// Insert non-paint code that needs to execute each tick 
 }
 

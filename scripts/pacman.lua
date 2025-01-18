@@ -17,7 +17,6 @@ Pacman = {}
 Pacman.__index = Pacman
 
 function Pacman:new(posX, posY)
-    print("Initializing Pacman... begin")
     local obj = setmetatable({}, self)
 
     --General
@@ -27,11 +26,11 @@ function Pacman:new(posX, posY)
     obj.speed = 100
     obj.currentDirection = DIRECTION.RIGHT
 
+    obj.isColliding = false
     --Animations
     obj.currentFrame = 0
     obj.elapsedTime = 0
 
-    print("Initializing Pacman... end")
     return obj
 end
 
@@ -50,18 +49,22 @@ function Pacman:Paint()
 end
 
 -- Update Pacman
-function Pacman:Tick(elapsedSec)
-    self:UpdateAnimation(elapsedSec)
+function Pacman:Tick(elapsedSec, map)
+    self:CheckCollision(map)
 
-    if self.currentDirection == DIRECTION.RIGHT then
-        self.x = self.x + math.floor(self.speed * elapsedSec)
-    elseif self.currentDirection == DIRECTION.LEFT then
-        self.x = self.x - math.floor(self.speed * elapsedSec)
-    elseif self.currentDirection == DIRECTION.UP then
-        self.y = self.y - math.floor(self.speed * elapsedSec)
-    elseif self.currentDirection == DIRECTION.DOWN then
-        self.y = self.y + math.floor(self.speed * elapsedSec)
-    end
+    if not self.isColliding then
+        if self.currentDirection == DIRECTION.RIGHT then
+            self.x = self.x + math.ceil(self.speed * elapsedSec)
+        elseif self.currentDirection == DIRECTION.LEFT then
+            self.x = self.x - math.ceil(self.speed * elapsedSec)
+        elseif self.currentDirection == DIRECTION.UP then
+            self.y = self.y - math.ceil(self.speed * elapsedSec)
+        elseif self.currentDirection == DIRECTION.DOWN then
+            self.y = self.y + math.ceil(self.speed * elapsedSec)
+        end
+        
+        self:UpdateAnimation(elapsedSec)
+    end 
 end
 
 function Pacman:KeyPressed(char)
@@ -100,8 +103,13 @@ function Pacman:GetTextureRect()
     return {x = x, y = y, width = TILE_SIZE, height = TILE_SIZE}
 end
 
-function Pacman:CheckCollision()
-    
+function Pacman:CheckCollision(map)
+    local didtHit = map:CheckCollision(self.x, self.y)
+    if didtHit then
+        self.isColliding = true
+    else
+        self.isColliding = false
+    end
 end
 
 -- Return the Pacman class for require
