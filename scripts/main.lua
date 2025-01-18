@@ -7,7 +7,6 @@ local pacman
 local map
 
 function Initialize()
-    print("Initialize function... called")
     pacman = Pacman:new(216, 400)
     map = Map:new(0,0)
 end
