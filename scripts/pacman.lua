@@ -50,48 +50,50 @@ end
 
 -- Update Pacman
 function Pacman:Tick(elapsedSec, map)
-    -- Reset collision flag before checking for a new movement
-    self.isColliding = false
+    -- Determine movement vector based on direction
+    local movement = {x = 0, y = 0}
+    if self.currentDirection == DIRECTION.RIGHT then
+        movement.x = self.speed
+    elseif self.currentDirection == DIRECTION.LEFT then
+        movement.x = -self.speed
+    elseif self.currentDirection == DIRECTION.DOWN then
+        movement.y = self.speed
+    elseif self.currentDirection == DIRECTION.UP then
+        movement.y = -self.speed
+    end
 
-    -- Define movement vectors for each direction
-    local movementVectors = {
-        [DIRECTION.RIGHT] = {x = TILE_SIZE, y = 0},
-        [DIRECTION.LEFT] = {x = -TILE_SIZE, y = 0},
-        [DIRECTION.UP] = {x = 0, y = -TILE_SIZE},
-        [DIRECTION.DOWN] = {x = 0, y = TILE_SIZE}
+    -- Compute the new position
+    local newX = self.x + (movement.x > 0 and math.ceil(movement.x * elapsedSec) or math.floor(movement.x * elapsedSec))
+    local newY = self.y + (movement.y > 0 and math.ceil(movement.y * elapsedSec) or math.floor(movement.y * elapsedSec))
+
+    -- Define the corners of Pacman in the new position
+    local corners = {
+        {x = newX, y = newY},                             -- Top-left corner
+        {x = newX + TILE_SIZE - 1, y = newY},             -- Top-right corner
+        {x = newX, y = newY + TILE_SIZE - 1},             -- Bottom-left corner
+        {x = newX + TILE_SIZE - 1, y = newY + TILE_SIZE - 1} -- Bottom-right corner
     }
 
-    -- Get the current movement vector based on Pacman's direction
-    local movement = movementVectors[self.currentDirection]
-
-    -- Calculate the potential new position based on elapsed time, and apply floor/ceil
-    local newX, newY
-
-    if movement.x >= 0 then  -- Moving right
-        newX = math.ceil((self.x + movement.x * elapsedSec))
-    elseif movement.x < 0 then  -- Moving left
-        newX = math.floor((self.x + movement.x * elapsedSec))
+    -- Check if any corner collides with a wall
+    local collision = false
+    for _, corner in ipairs(corners) do
+        if map:CheckCollision(corner.x, corner.y) then
+            collision = true
+            break
+        end
     end
 
-    if movement.y >= 0 then  -- Moving down
-        newY = math.ceil((self.y + movement.y * elapsedSec))
-    elseif movement.y < 0 then  -- Moving up
-        newY = math.floor((self.y + movement.y * elapsedSec))
-    end
-
-    -- Check if the new position collides with the map
-    if not map:CheckCollision(newX, newY) then
-        -- No collision, update position
+    -- Update Pacman's position if no collision
+    if not collision then
         self.x = newX
         self.y = newY
+        self.isColliding = false
+        self:UpdateAnimation(elapsedSec)
     else
-        -- Collision detected, stop movement
         self.isColliding = true
     end
-
-    -- Update animation
-    self:UpdateAnimation(elapsedSec)
 end
+
 
 function Pacman:KeyPressed(char)
     if char == "D" then
@@ -130,7 +132,7 @@ function Pacman:GetTextureRect()
 end
 
 function Pacman:CheckCollision(map)
-    local didtHit = map:CheckCollision(self.x, self.y)
+    local didtHit = map:CheckCollision(self.x, self.y, self.currentDirection, DIRECTION)
     if didtHit then
         self.isColliding = true
     else

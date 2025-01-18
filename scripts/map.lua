@@ -109,27 +109,20 @@ function Map:Paint()
 end
 
 function Map:CheckCollision(x, y)
-       -- Convert Pac-Man's world position to map grid position
-       local tileX1 = math.floor((x - OFFSET_X) / TILE_SIZE) + 1
-       local tileY1 = math.floor((y - OFFSET_Y) / TILE_SIZE) + 1
-       local tileX2 = math.floor((x + TILE_SIZE - OFFSET_X) / TILE_SIZE) + 1
-       local tileY2 = math.floor((y + TILE_SIZE - OFFSET_Y) / TILE_SIZE) + 1
-   
-       -- Check if the tiles are within bounds
-       if tileX1 < 1 or tileY1 < 1 or tileX2 > #MAP_TILE_SET[1] or tileY2 > #MAP_TILE_SET then
-           return false  -- Out of bounds, no collision
-       end
-   
-       -- Check if any of the 4 tiles in the 2x2 space are walls
-       if MAP_TILE_SET[tileY1][tileX1] == 1 or
-          MAP_TILE_SET[tileY1][tileX2] == 1 or
-          MAP_TILE_SET[tileY2][tileX1] == 1 or
-          MAP_TILE_SET[tileY2][tileX2] == 1 then
-           return true  -- Collision with a wall
-       end
-   
-       return false  -- No collision
+    -- Convert Pac-Man's world position to map grid position
+    local tileX = math.floor((x - OFFSET_X) / TILE_SIZE) + 1
+    local tileY = math.floor((y - OFFSET_Y) / TILE_SIZE) + 1
+
+    -- Check bounds
+    if tileX < 1 or tileY < 1 or tileX > #MAP_TILE_SET[1] or tileY > #MAP_TILE_SET then
+        return true -- Out of bounds counts as collision
+    end
+
+    -- Check if the tile is a wall
+    return MAP_TILE_SET[tileY][tileX] == 1
 end
+
+
 
 -- Return the Map class for require
 return Map
