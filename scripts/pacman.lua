@@ -4,9 +4,6 @@ local TILE_SIZE = 32  -- Size of each tile in the sprite sheet
 local FRAME_COUNT = 2 -- Number of frames per direction
 local ANIMATION_SPEED = 0.1 -- Time per frame (in seconds)
 
-
-local OFFSET_X = 8
-local OFFSET_Y = 48
 -- Directions
 local DIRECTION = {
     RIGHT = {1, 0},
@@ -29,8 +26,6 @@ function Pacman:new(posX, posY)
     obj.speed = 100
     obj.currentDirection = DIRECTION.RIGHT
     obj.desiredDirection = DIRECTION.RIGHT
-
-    obj.isColliding = false
     --Animations
     obj.currentFrame = 0
     obj.elapsedTime = 0

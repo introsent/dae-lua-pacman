@@ -6,8 +6,6 @@ local Pellet = require("pellet")
 
 local TILE_SIZE = 16  -- Size of each tile in the sprite sheet
 
-local OFFSET_X = 8
-local OFFSET_Y = 48
 
 local MAP_TILE_SET = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -48,7 +46,6 @@ Map = {}
 Map.__index = Map
 
 function Map:new(posX, posY)
-    print("Initializing Map... begin")
     local obj = setmetatable({}, self)
 
     obj.pellets = self:InstatiatePellets()
@@ -57,15 +54,12 @@ function Map:new(posX, posY)
     obj.texture = self:LoadBMPTexture()
     obj.posX = posX or 0
     obj.posY = posY or 0
-    print("Initializing Map... end")
     return obj
 end
 
 -- Load Map textrue
 function Map:LoadBMPTexture()
-    print("Load BMP... begin")
 	local texture = Bitmap.new(resourcePath, true)
-    print("Load BMP... end")
 	texture:SetTransparencyColor(GameEngine:MakeRGB(0, 0, 0))
 	return texture
 end
@@ -75,12 +69,10 @@ function Map:InstatiatePellets()
     local pellets = {}
     for y, row in ipairs(MAP_TILE_SET) do
         if (y >= #MAP_TILE_SET)  then
-            print("Number of pellets: " .. #pellets)
             return pellets
         end
         for x, tile in ipairs(row) do
             if (x >= #MAP_TILE_SET[1]) then
-                print("Number of pellets: " .. #pellets)
                 break 
             end    
             if (MAP_TILE_SET[y][x] == 0 and MAP_TILE_SET[y][x+1] == 0 and MAP_TILE_SET[y+1][x] == 0 and MAP_TILE_SET[y+1][x+1] == 0) then
@@ -103,11 +95,9 @@ function Map:CheckIntersectionWithPellets(pacman)
     local indexToDelete = -1
     for inx, pellet in ipairs(self.pellets) do
         local pelletX, pelletY = pellet:GetLocation()
-
         local delta = math.sqrt((pelletX- pacmanX) ^ 2 + (pelletY- pacmanY) ^ 2 )
 
         if delta <  TILE_SIZE then
-        --if pelletX >= pacmanX and pelletX <= pacmanX + TILE_SIZE * 2 and pelletY >= pacmanY and pelletY  <= pacmanY + TILE_SIZE * 2 then
             pacman:IncreaseScore(10)
             indexToDelete = inx
             break
@@ -115,9 +105,7 @@ function Map:CheckIntersectionWithPellets(pacman)
     end
 
     if indexToDelete > 0 then
-        print("Pellet to remove")
         table.remove(self.pellets, indexToDelete)
-        print("Pellet to removed")
     end
 
 end
