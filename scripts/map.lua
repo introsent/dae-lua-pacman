@@ -84,11 +84,8 @@ function Map:InstatiatePellets()
                 break 
             end    
             if (MAP_TILE_SET[y][x] == 0 and MAP_TILE_SET[y][x+1] == 0 and MAP_TILE_SET[y+1][x] == 0 and MAP_TILE_SET[y+1][x+1] == 0) then
-                local pellet = Pellet:new(OFFSET_X + x * TILE_SIZE, OFFSET_Y + y * TILE_SIZE)
-                   
-                table.insert(pellets, pellet)
-
-            
+                local pellet = Pellet:new(OFFSET_X + x * TILE_SIZE, OFFSET_Y + y * TILE_SIZE)         
+                table.insert(pellets, pellet)        
             end
         end
     end
@@ -99,6 +96,21 @@ function Map:GetMapTilesSet()
     return MAP_TILE_SET
 end
 
+function Map:SnapToTileBasedOnCurrentPosition(x, y)
+    
+    -- Convert Pacman's world position to map space (local to the grid)
+    local localX = x - OFFSET_X
+    local localY = y - OFFSET_Y
+
+    -- Snap position to the nearest tile
+    local snappedTileX = math.floor(localX / TILE_SIZE + 0.5)
+    local snappedTileY = math.floor(localY / TILE_SIZE + 0.5)
+
+    -- Convert back to world space and update Pacman's position
+    return snappedTileX * TILE_SIZE + OFFSET_X, snappedTileY * TILE_SIZE + OFFSET_Y
+
+end
+
 -- Paint Map
 function Map:Paint()
     GameEngine:DrawBitmap(self.texture, self.posX, self.posY)
@@ -106,23 +118,62 @@ function Map:Paint()
     for _, pellet in ipairs(self.pellets) do
         pellet:Paint()  -- Call the pellet function on each Pellet instance
     end
-end
 
-function Map:CheckCollision(x, y)
-    -- Convert Pac-Man's world position to map grid position
-    local tileX = math.floor((x - OFFSET_X) / TILE_SIZE) + 1
-    local tileY = math.floor((y - OFFSET_Y) / TILE_SIZE) + 1
-
-    -- Check bounds
-    if tileX < 1 or tileY < 1 or tileX > #MAP_TILE_SET[1] or tileY > #MAP_TILE_SET then
-        return true -- Out of bounds counts as collision
+    GameEngine:SetColor(GameEngine:MakeRGB(0, 0, 255))
+    for y, row in ipairs(MAP_TILE_SET) do
+        for x, tile in ipairs(row) do
+            if tile == 1 then
+                GameEngine:FillRect(OFFSET_X + TILE_SIZE * (x-1),  OFFSET_Y + TILE_SIZE * (y-1), OFFSET_X + TILE_SIZE * x, OFFSET_Y + TILE_SIZE * y)
+            end
+        end
     end
 
-    -- Check if the tile is a wall
-    return MAP_TILE_SET[tileY][tileX] == 1
 end
 
+function Map:CheckCollision(x, y, directionX, directionY)
+    -- Pacman's position
+    local pacmanSize = TILE_SIZE * 2 -- Pacman is 2x2 tiles
 
+    -- Determine the tiles to check based on direction
+    local tilesToCheck = {}
+    if directionX > 0 then -- Moving right
+        table.insert(tilesToCheck, {x + pacmanSize + 1, y}) -- Top-right tile
+        table.insert(tilesToCheck, {x + pacmanSize + 1, y + pacmanSize - 1}) -- Bottom-right tile
+        table.insert(tilesToCheck, {x + pacmanSize + 1, y + TILE_SIZE - 1})
+    elseif directionX < 0 then -- Moving left
+        table.insert(tilesToCheck, {x - 1, y}) -- Top-left tile
+        table.insert(tilesToCheck, {x - 1, y +  pacmanSize - 1}) -- Bottom-left tile
+        table.insert(tilesToCheck, {x - 1, y + TILE_SIZE - 1})
+    elseif directionY < 0 then -- Moving up
+        table.insert(tilesToCheck, {x, y - 1}) -- Top-left tile
+        table.insert(tilesToCheck, {x +  pacmanSize - 1, y - 1}) -- Top-right tile
+        table.insert(tilesToCheck, {x +  TILE_SIZE  - 1, y - 1})
+    elseif directionY > 0 then -- Moving down
+        table.insert(tilesToCheck, {x, y + pacmanSize + 1}) -- Bottom-left tile
+        table.insert(tilesToCheck, {x + pacmanSize- 1, y + pacmanSize + 1}) -- Bottom-right tile
+        table.insert(tilesToCheck, {x +  TILE_SIZE  - 1, y + pacmanSize + 1})
+    end
+
+
+    local wallTiles = 0
+
+    -- Check all relevant tiles
+    for _, pos in ipairs(tilesToCheck) do
+        local tileX = math.floor((pos[1] - OFFSET_X) /  TILE_SIZE) + 1
+        local tileY = math.floor((pos[2] - OFFSET_Y) /  TILE_SIZE) + 1
+        -- Out of bounds check
+        if tileX < 1 or tileY < 1 or tileX > #MAP_TILE_SET[1] or tileY > #MAP_TILE_SET then
+            wallTiles = wallTiles + 1
+        end
+
+        -- Wall check
+        if MAP_TILE_SET[tileY][tileX] == 1 then
+            wallTiles = wallTiles + 1
+        end
+    end
+
+    return wallTiles
+end
 
 -- Return the Map class for require
 return Map

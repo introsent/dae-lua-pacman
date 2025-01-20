@@ -215,7 +215,7 @@ void Game::BindGame()
         //"DrawString", &GameEngine::DrawString,
         "GetTitle", &GameEngine::GetTitle,
         "GetWidth", &GameEngine::GetWidth,
-        "GetHeihgt", &GameEngine::GetHeight,
+        "GetHeight", &GameEngine::GetHeight,
         "GetFrameRate", &GameEngine::GetFrameRate,
         "DrawLine", &GameEngine::DrawLine,
         "DrawRect", &GameEngine::DrawRect,
