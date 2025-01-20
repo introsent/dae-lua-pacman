@@ -17,4 +17,8 @@ function Pellet:Paint()
     GameEngine:FillOval(self.x - 3, self.y - 3, self.x + 3, self.y + 3)
 end
 
+function Pellet:GetLocation()
+    return self.x, self.y
+end
+
 return Pellet

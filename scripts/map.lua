@@ -84,12 +84,42 @@ function Map:InstatiatePellets()
                 break 
             end    
             if (MAP_TILE_SET[y][x] == 0 and MAP_TILE_SET[y][x+1] == 0 and MAP_TILE_SET[y+1][x] == 0 and MAP_TILE_SET[y+1][x+1] == 0) then
-                local pellet = Pellet:new(OFFSET_X + x * TILE_SIZE, OFFSET_Y + y * TILE_SIZE)         
-                table.insert(pellets, pellet)        
+                local pellet = Pellet:new(OFFSET_X + x * TILE_SIZE, OFFSET_Y + y * TILE_SIZE)
+                table.insert(pellets, pellet)
             end
         end
     end
     return pellets
+end
+
+function Map:CheckIntersectionWithPellets(pacman)
+    local pacmanX, pacmanY = pacman:GetLocation()
+
+    pacmanX = pacmanX + TILE_SIZE
+    pacmanY = pacmanY + TILE_SIZE
+
+    
+    
+    local indexToDelete = -1
+    for inx, pellet in ipairs(self.pellets) do
+        local pelletX, pelletY = pellet:GetLocation()
+
+        local delta = math.sqrt((pelletX- pacmanX) ^ 2 + (pelletY- pacmanY) ^ 2 )
+
+        if delta <  TILE_SIZE then
+        --if pelletX >= pacmanX and pelletX <= pacmanX + TILE_SIZE * 2 and pelletY >= pacmanY and pelletY  <= pacmanY + TILE_SIZE * 2 then
+            pacman:IncreaseScore(10)
+            indexToDelete = inx
+            break
+        end
+    end
+
+    if indexToDelete > 0 then
+        print("Pellet to remove")
+        table.remove(self.pellets, indexToDelete)
+        print("Pellet to removed")
+    end
+
 end
 
 function Map:GetMapTilesSet()
@@ -97,7 +127,6 @@ function Map:GetMapTilesSet()
 end
 
 function Map:SnapToTileBasedOnCurrentPosition(x, y)
-    
     -- Convert Pacman's world position to map space (local to the grid)
     local localX = x - OFFSET_X
     local localY = y - OFFSET_Y

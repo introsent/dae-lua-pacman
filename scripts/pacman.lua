@@ -34,6 +34,7 @@ function Pacman:new(posX, posY)
     --Animations
     obj.currentFrame = 0
     obj.elapsedTime = 0
+    obj.score = 0
 
     return obj
 end
@@ -56,6 +57,8 @@ end
 
 -- Update Pacman
 function Pacman:Tick(elapsedSec, map)
+    -- Check intersection with pellet
+    map:CheckIntersectionWithPellets(self)
     -- Check collision with desired direction
     if map:CheckCollision(self.x, self.y, self.desiredDirection[1], self.desiredDirection[2]) == 0 then
         self.currentDirection = self.desiredDirection
@@ -133,6 +136,14 @@ function Pacman:GetTextureRect()
     local y = row * TILE_SIZE
 
     return {x = x, y = y, width = TILE_SIZE, height = TILE_SIZE}
+end
+
+function Pacman:IncreaseScore(amount)
+    self.score = self.score + amount
+end
+
+function Pacman:GetLocation()
+    return self.x, self.y
 end
 
 -- Return the Pacman class for require
