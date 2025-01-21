@@ -11,8 +11,8 @@ local RedGhost = require("redGhost")
 local pacman
 local map
 
-OFFSET_X = 8
-OFFSET_Y = 48
+OFFSET_X = -8
+OFFSET_Y = 32
 
 
 -- Create ghost instances

@@ -44,14 +44,13 @@ end
 
 -- Paint Pacman
 function Pacman:Paint()
-    
     local rect = self:GetTextureRect()
     GameEngine:DrawBitmap(self.texture, math.floor(self.x), math.floor(self.y), GameEngine:MakeRect(math.floor(rect.x), math.floor(rect.y), math.floor(rect.x + rect.width), math.floor(rect.y + rect.height)))
-    
 end
 
 -- Update Pacman
 function Pacman:Tick(elapsedSec, map)
+    self:ScreenWrapping()
     -- Check intersection with pellet
     map:CheckIntersectionWithPellets(self)
     -- Check collision with desired direction
@@ -87,9 +86,16 @@ function Pacman:KeyPressed(char)
         self.desiredDirection = DIRECTION.LEFT
     elseif char == "W" then
         self.desiredDirection = DIRECTION.UP
-        print("desiredDirectionKey" .. self.desiredDirection[1] .. self.desiredDirection[2])
     elseif char == "S" then
         self.desiredDirection = DIRECTION.DOWN
+    end
+end
+
+function Pacman:ScreenWrapping()
+    if self.x > GameEngine:GetWidth() then
+        self.x = -TILE_SIZE
+    elseif self.x + TILE_SIZE < 0 then
+        self.x = GameEngine:GetWidth()
     end
 end
 
